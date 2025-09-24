@@ -10,7 +10,7 @@ const Hero = () => {
   useEffect(() => {
     const introTimer = setTimeout(() => setShowIntro(true), 100);
     const nameTimer = setTimeout(() => setShowName(true), 500);
-    const roleTimer = setTimeout(() => setShowRole(true), 1000);
+    const roleTimer = setTimeout(() => setShowRole(true), 800);
 
     return () => {
       clearTimeout(introTimer);
