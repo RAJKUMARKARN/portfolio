@@ -51,7 +51,7 @@ const Hero = () => {
               showName ? 'opacity-100' : 'opacity-0'
             }`}
           >
-            <h1 style={{ fontFamily: "'Inter', sans-serif" }} className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-black uppercase bg-gradient-to-r from-[#777777] to-white bg-clip-text text-transparent">
+            <h1 style={{ fontFamily: "'Inter', sans-serif" }} className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-black uppercase text-white">
               Raj Kumar Karn
             </h1>
           </div>
@@ -79,8 +79,8 @@ const Hero = () => {
           }`}
         >
           <ReactTyped
-            className="block text-sm sm:text-base md:text-lg lg:text-2xl font-bold font-michroma text-white text-right"
-            strings={["Frontend Developer", "UI/UX Developer"]}
+            className="block text-[7px] sm:text-xs md:text-sm lg:text-base font-extrabold text-right animated-gradient-text"
+            strings={["Frontend Developer", "UI/UX Developer", "Full Stack Developer", "App Developer"]}
             typeSpeed={100}
             backSpeed={30}
             loop
