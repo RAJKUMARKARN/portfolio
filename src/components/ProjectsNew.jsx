@@ -48,7 +48,7 @@ const ProjectsNew = () => {
             {/* Text Section */}
             <div className="flex items-center px-6 py-8 md:py-0 md:px-10 w-full md:w-1/2">
               <div>
-                <img src={proj.icon} alt="Icon" className="w-[33px] h-[33px] mb-4" />
+                <img src={proj.icon} alt="Icon" loading="lazy" decoding="async" className="w-[33px] h-[33px] mb-4" />
                 <h2 className="text-lg md:text-xl font-semibold mb-2 
                   text-white 
                   group-hover:text-[#D5A9EF] group-focus:text-[#D5A9EF] group-active:text-[#D5A9EF] 
@@ -71,6 +71,8 @@ const ProjectsNew = () => {
               <img
                 src={proj.preview}
                 alt={`${proj.title} UI`}
+                loading="lazy"
+                decoding="async"
                 className="max-h-[180px] w-auto object-contain"
               />
             </div>

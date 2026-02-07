@@ -1,9 +1,8 @@
 import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 
-// Dynamic import: Spline runtime (~3MB) only loads when component renders
 const SplineLazy = lazy(() => import('@splinetool/react-spline'));
 
-export default function SplineViewer() {
+export default function SplineNext() {
   const [shouldLoad, setShouldLoad] = useState(false);
   const containerRef = useRef();
 
@@ -15,14 +14,13 @@ export default function SplineViewer() {
       ([entry]) => {
         if (entry.isIntersecting) {
           setShouldLoad(true);
-          observer.disconnect(); // Only need to trigger once
+          observer.disconnect();
         }
       },
-      { threshold: 0.1, rootMargin: '200px' } // Start loading 200px before visible
+      { threshold: 0.1, rootMargin: '200px' }
     );
 
     observer.observe(el);
-
     return () => observer.disconnect();
   }, []);
 
@@ -39,7 +37,7 @@ export default function SplineViewer() {
             </div>
           }
         >
-          <SplineLazy scene="https://prod.spline.design/toH-nUTyiF8muFAv/scene.splinecode" />
+          <SplineLazy scene="https://prod.spline.design/MT1TC8N867oLDF4A/scene.splinecode" />
         </Suspense>
       ) : (
         <div className="text-white flex justify-center items-center h-full bg-black">

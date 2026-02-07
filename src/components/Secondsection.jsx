@@ -59,6 +59,8 @@ const Secondsection = () => {
             <img
               src="Picture.png"
               alt="my image"
+              loading="lazy"
+              decoding="async"
               className="w-[250px] sm:w-[300px] md:w-[350px] lg:w-[400px] xl:w-[450px] h-auto object-contain"
             />
           </div>
@@ -84,6 +86,8 @@ const Secondsection = () => {
                   <img
                     src="leetcode.png"
                     alt="LeetCode"
+                    loading="lazy"
+                    decoding="async"
                     className="h-7 w-7 opacity-50 hover:opacity-100 focus:opacity-100 active:opacity-100 transition"
                   />
                 </a>
@@ -91,6 +95,8 @@ const Secondsection = () => {
                   <img
                     src="linkedin.png"
                     alt="LinkedIn"
+                    loading="lazy"
+                    decoding="async"
                     className="h-7 w-7 opacity-50 hover:opacity-100 focus:opacity-100 active:opacity-100 transition"
                   />
                 </a>
@@ -98,6 +104,8 @@ const Secondsection = () => {
                   <img
                     src="github.png"
                     alt="GitHub"
+                    loading="lazy"
+                    decoding="async"
                     className="h-7 w-7 opacity-50 hover:opacity-100 focus:opacity-100 active:opacity-100 transition"
                   />
                 </a>
@@ -105,6 +113,8 @@ const Secondsection = () => {
                   <img
                     src="gmail.png"
                     alt="Gmail"
+                    loading="lazy"
+                    decoding="async"
                     className="h-7 w-7 opacity-50 hover:opacity-100 focus:opacity-100 active:opacity-100 transition"
                   />
                 </a>

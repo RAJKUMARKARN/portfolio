@@ -43,6 +43,8 @@ const Skills = () => {
                     <img
                       src="/arrow2.png"
                       alt=""
+                      loading="lazy"
+                      decoding="async"
                       className="w-4 h-4 transform translate-x-2 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100"
                     />
                   </span>

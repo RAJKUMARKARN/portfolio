@@ -1,73 +1,59 @@
-import { useEffect, useRef } from 'react';
-import './App.css';
+import { lazy, Suspense } from 'react';
 import './index.css';
-import LocomotiveScroll from 'locomotive-scroll';
-import 'locomotive-scroll/dist/locomotive-scroll.css';
 
 import Nav from './components/Nav';
 import Hero from './components/Hero';
-import Secondsection from './components/Secondsection';
-import Skills from './components/Skills';
-import ProjectsNew from './components/ProjectsNew';
-import Work from './components/Work';
-import Contact from './components/Contact';
-import Footer2 from './components/Footer2';
+
+// Lazy load below-the-fold components so they don't block initial paint
+const Secondsection = lazy(() => import('./components/Secondsection'));
+const Skills = lazy(() => import('./components/Skills'));
+const ProjectsNew = lazy(() => import('./components/ProjectsNew'));
+const Work = lazy(() => import('./components/Work'));
+const Contact = lazy(() => import('./components/Contact'));
+const Footer2 = lazy(() => import('./components/Footer2'));
+
+// Minimal loading placeholder (matches dark bg so no flash)
+const SectionFallback = () => (
+  <div className="min-h-[200px] w-full bg-black" />
+);
 
 function App() {
-  const scrollRef = useRef(null);
-
-  useEffect(() => {
-    // Initialize Locomotive Scroll
-    const scroll = new LocomotiveScroll({
-      el: scrollRef.current,
-      smooth: true,
-      lerp: 0.1, // easing for smoothness
-      multiplier: 1,
-      mobile: { smooth: true },
-    });
-
-    return () => scroll.destroy(); // Cleanup on unmount
-  }, []);
-
   return (
-    <div ref={scrollRef} data-scroll-container className="bg-black">
-      {/* Navigation */}
+    <div className="bg-black">
+      {/* Navigation - always loaded immediately */}
       <Nav />
 
-      {/* Hero Section */}
-      <section data-scroll-section>
+      {/* Hero Section - always loaded immediately (above the fold) */}
+      <section>
         <Hero />
       </section>
 
-      {/* Second Section */}
-      <section data-scroll-section>
-        <Secondsection />
-      </section>
+      {/* Below-the-fold sections load on demand */}
+      <Suspense fallback={<SectionFallback />}>
+        <section>
+          <Secondsection />
+        </section>
 
-      {/* Skills Section */}
-      <section data-scroll-section>
-        <Skills />
-      </section>
+        <section>
+          <Skills />
+        </section>
 
-      {/* Projects Section */}
-      <section data-scroll-section>
-        <ProjectsNew />
-      </section>
+        <section>
+          <ProjectsNew />
+        </section>
 
-      {/* Work Section */}
-      <section data-scroll-section>
-        <Work />
-      </section>
+        <section>
+          <Work />
+        </section>
 
-      {/* Contact Section */}
-      <section data-scroll-section>
-        <Contact />
-      </section>
+        <section>
+          <Contact />
+        </section>
 
-      {/* Footer */}
-      <section data-scroll-section>
-        <Footer2 />
-      </section>
+        <section>
+          <Footer2 />
+        </section>
+      </Suspense>
     </div>
   );
 }

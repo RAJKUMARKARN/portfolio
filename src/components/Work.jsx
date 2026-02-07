@@ -53,6 +53,8 @@ const Work = () => {
             <div className="flex flex-col items-center">
               <img
                 src={exp.logo}
+                loading="lazy"
+                decoding="async"
                 className={`${
                   i === 1 ? 'w-[50px] h-[50px]' : 'w-[184px] h-[40px]'
                 } mt-2 sm:mt-4 mx-auto opacity-50
