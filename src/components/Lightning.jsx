@@ -1,25 +1,60 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState, memo } from 'react';
 import './Lightning.css';
+import { getPerformanceConfig, debounce } from '../utils/performanceUtils';
 
-const Lightning = ({ hue = 230, xOffset = 0, speed = 1, intensity = 1, size = 1 }) => {
+const Lightning = memo(({ hue = 230, xOffset = 0, speed = 1, intensity = 1, size = 1 }) => {
   const canvasRef = useRef(null);
+  const animationRef = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const performanceConfig = useRef(getPerformanceConfig());
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+
+    // Pause animation when not visible using IntersectionObserver
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          setIsVisible(entry.isIntersecting);
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(canvas);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || !isVisible) return;
 
     const resizeCanvas = () => {
       canvas.width = canvas.clientWidth;
       canvas.height = canvas.clientHeight;
     };
     resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
+    
+    // Debounce resize for better performance
+    const debouncedResize = debounce(resizeCanvas, 250);
+    window.addEventListener('resize', debouncedResize);
 
-    const gl = canvas.getContext('webgl');
+    const gl = canvas.getContext('webgl', {
+      alpha: true,
+      antialias: false, // Disable antialiasing for better performance
+      powerPreference: 'high-performance'
+    });
     if (!gl) {
       console.error('WebGL not supported');
       return;
     }
+
+    // Adjust octave count based on device performance
+    const octaveCount = performanceConfig.current.lightningOctaves;
 
     const vertexShaderSource = `
       attribute vec2 aPosition;
@@ -38,7 +73,7 @@ const Lightning = ({ hue = 230, xOffset = 0, speed = 1, intensity = 1, size = 1 
       uniform float uIntensity;
       uniform float uSize;
       
-      #define OCTAVE_COUNT 10
+      #define OCTAVE_COUNT ${octaveCount}
 
       vec3 hsv2rgb(vec3 c) {
           vec3 rgb = clamp(abs(mod(c.x * 6.0 + vec3(0.0,4.0,2.0), 6.0) - 3.0) - 1.0, 0.0, 1.0);
@@ -154,28 +189,44 @@ const Lightning = ({ hue = 230, xOffset = 0, speed = 1, intensity = 1, size = 1 
     const uSizeLocation = gl.getUniformLocation(program, 'uSize');
 
     const startTime = performance.now();
+    let isRunning = true;
+    
     const render = () => {
-      resizeCanvas();
+      if (!isRunning) return;
+      
       gl.viewport(0, 0, canvas.width, canvas.height);
       gl.uniform2f(iResolutionLocation, canvas.width, canvas.height);
       const currentTime = performance.now();
       gl.uniform1f(iTimeLocation, (currentTime - startTime) / 1000.0);
       gl.uniform1f(uHueLocation, hue);
       gl.uniform1f(uXOffsetLocation, xOffset);
-      gl.uniform1f(uSpeedLocation, speed);
-      gl.uniform1f(uIntensityLocation, intensity);
+      gl.uniform1f(uSpeedLocation, speed * performanceConfig.current.lightningSpeed);
+      gl.uniform1f(uIntensityLocation, intensity * performanceConfig.current.lightningIntensity);
       gl.uniform1f(uSizeLocation, size);
       gl.drawArrays(gl.TRIANGLES, 0, 6);
-      requestAnimationFrame(render);
+      animationRef.current = requestAnimationFrame(render);
     };
-    requestAnimationFrame(render);
+    
+    animationRef.current = requestAnimationFrame(render);
 
     return () => {
-      window.removeEventListener('resize', resizeCanvas);
+      isRunning = false;
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+      window.removeEventListener('resize', debouncedResize);
+      
+      // Clean up WebGL context
+      const loseContextExt = gl.getExtension('WEBGL_lose_context');
+      if (loseContextExt) {
+        loseContextExt.loseContext();
+      }
     };
-  }, [hue, xOffset, speed, intensity, size]);
+  }, [hue, xOffset, speed, intensity, size, isVisible]);
 
   return <canvas ref={canvasRef} className="lightning-container" />;
-};
+});
+
+Lightning.displayName = 'Lightning';
 
 export default Lightning;

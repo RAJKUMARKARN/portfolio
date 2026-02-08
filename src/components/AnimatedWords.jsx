@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, memo } from 'react';
 
-const AnimatedWords = () => {
+const AnimatedWords = memo(() => {
   const words = ['Design', 'Build', 'Develop', 'Deploy', "Now that's what I do"];
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
@@ -124,6 +124,8 @@ const AnimatedWords = () => {
       )}
     </div>
   );
-};
+});
+
+AnimatedWords.displayName = 'AnimatedWords';
 
 export default AnimatedWords;

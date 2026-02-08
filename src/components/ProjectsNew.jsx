@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { memo } from 'react';
 import Lightning from './Lightning';
 
-const ProjectsNew = () => {
+const ProjectsNew = memo(() => {
   return (
     <div id="projects" className="w-full flex flex-col items-center bg-black px-4 py-12 md:py-16" style={{ marginTop: '50px' }}>
       <h3 className="font-michroma text-[#E9E9E9] font-bold text-lg md:text-xl lg:text-2xl mb-8 md:mb-10">
@@ -104,6 +104,8 @@ const ProjectsNew = () => {
       </div>
     </div>
   );
-};
+});
+
+ProjectsNew.displayName = 'ProjectsNew';
 
 export default ProjectsNew;

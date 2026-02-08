@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import RippleGrid from './RippleGrid';
 
 const workData = [
@@ -48,7 +48,7 @@ const workData = [
   },
 ];
 
-const Work = () => {
+const Work = memo(() => {
   return (
     <div id="experience" className="w-full min-h-[600px] flex flex-col bg-black items-center px-4 py-12 md:py-16" style={{ marginTop: '50px' }}>
       <h3 className="text-white font-michroma text-lg md:text-xl lg:text-2xl mb-8 md:mb-10">Work Experience</h3>
@@ -123,6 +123,8 @@ const Work = () => {
       </div>
     </div>
   );
-};
+});
+
+Work.displayName = 'Work';
 
 export default Work;

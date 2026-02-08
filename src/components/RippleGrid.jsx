@@ -1,8 +1,9 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState, memo } from 'react';
 import { Renderer, Program, Triangle, Mesh } from 'ogl';
 import './RippleGrid.css';
+import { getPerformanceConfig, debounce } from '../utils/performanceUtils';
 
-const RippleGrid = ({
+const RippleGrid = memo(({
   enableRainbow = false,
   gridColor = '#ffffff',
   rippleIntensity = 0.05,
@@ -21,9 +22,32 @@ const RippleGrid = ({
   const targetMouseRef = useRef({ x: 0.5, y: 0.5 });
   const mouseInfluenceRef = useRef(0);
   const uniformsRef = useRef(null);
+  const animationRef = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const performanceConfig = useRef(getPerformanceConfig());
 
+  // IntersectionObserver to pause when not visible
   useEffect(() => {
     if (!containerRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          setIsVisible(entry.isIntersecting);
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(containerRef.current);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!containerRef.current || !isVisible) return;
 
     const hexToRgb = hex => {
       const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -32,9 +56,12 @@ const RippleGrid = ({
         : [1, 1, 1];
     };
 
+    // Use optimal DPR based on device performance
     const renderer = new Renderer({
-      dpr: Math.min(window.devicePixelRatio, 2),
-      alpha: true
+      dpr: performanceConfig.current.dpr,
+      alpha: true,
+      antialias: false, // Disable for better performance
+      powerPreference: 'high-performance'
     });
     const gl = renderer.gl;
     gl.enable(gl.BLEND);
@@ -170,10 +197,14 @@ void main() {
     const mesh = new Mesh(gl, { geometry, program });
 
     const resize = () => {
+      if (!containerRef.current) return;
       const { clientWidth: w, clientHeight: h } = containerRef.current;
       renderer.setSize(w, h);
       uniforms.iResolution.value = [w, h];
     };
+
+    // Debounce resize for better performance
+    const debouncedResize = debounce(resize, 250);
 
     const handleMouseMove = e => {
       if (!mouseInteraction || !containerRef.current) return;
@@ -193,15 +224,20 @@ void main() {
       mouseInfluenceRef.current = 0.0;
     };
 
-    window.addEventListener('resize', resize);
-    if (mouseInteraction) {
-      containerRef.current.addEventListener('mousemove', handleMouseMove);
-      containerRef.current.addEventListener('mouseenter', handleMouseEnter);
-      containerRef.current.addEventListener('mouseleave', handleMouseLeave);
+    window.addEventListener('resize', debouncedResize);
+    const container = containerRef.current;
+    if (mouseInteraction && container) {
+      container.addEventListener('mousemove', handleMouseMove);
+      container.addEventListener('mouseenter', handleMouseEnter);
+      container.addEventListener('mouseleave', handleMouseLeave);
     }
     resize();
 
+    let isRunning = true;
+    
     const render = t => {
+      if (!isRunning) return;
+      
       uniforms.iTime.value = t * 0.001;
 
       const lerpFactor = 0.1;
@@ -215,24 +251,35 @@ void main() {
       uniforms.mousePosition.value = [mousePositionRef.current.x, mousePositionRef.current.y];
 
       renderer.render({ scene: mesh });
-      requestAnimationFrame(render);
+      animationRef.current = requestAnimationFrame(render);
     };
 
-    requestAnimationFrame(render);
+    animationRef.current = requestAnimationFrame(render);
 
-    const container = containerRef.current;
     return () => {
-      window.removeEventListener('resize', resize);
+      isRunning = false;
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+      window.removeEventListener('resize', debouncedResize);
       if (mouseInteraction && container) {
         container.removeEventListener('mousemove', handleMouseMove);
         container.removeEventListener('mouseenter', handleMouseEnter);
         container.removeEventListener('mouseleave', handleMouseLeave);
       }
-      renderer.gl.getExtension('WEBGL_lose_context')?.loseContext();
-      container?.removeChild(gl.canvas);
+      
+      // Clean up WebGL context
+      const loseContextExt = gl.getExtension('WEBGL_lose_context');
+      if (loseContextExt) {
+        loseContextExt.loseContext();
+      }
+      
+      if (container && gl.canvas && container.contains(gl.canvas)) {
+        container.removeChild(gl.canvas);
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isVisible]);
 
   useEffect(() => {
     if (!uniformsRef.current) return;
@@ -272,6 +319,8 @@ void main() {
   ]);
 
   return <div ref={containerRef} className="ripple-grid-container" />;
-};
+});
+
+RippleGrid.displayName = 'RippleGrid';
 
 export default RippleGrid;

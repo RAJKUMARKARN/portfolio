@@ -92,3 +92,33 @@ html, body {
   box-sizing: border-box;
 }
 
+/* Performance optimizations */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Hardware acceleration for animations */
+.hardware-accelerate {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Optimize image rendering */
+img {
+  content-visibility: auto;
+}
+
+/* Optimize scroll performance */
+@supports (content-visibility: auto) {
+  section {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 500px;
+  }
+}
+

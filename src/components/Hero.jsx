@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { ReactTyped } from "react-typed";
 import Spline from "./Spline";
 import SplineNext from "./SplineNext";
 
-const Hero = () => {
+const Hero = memo(() => {
   const [showIntro, setShowIntro] = useState(false);
   const [showName, setShowName] = useState(false);
   const [showRole, setShowRole] = useState(false);
@@ -118,6 +118,8 @@ const Hero = () => {
       </div>
     </div>
   );
-};
+});
+
+Hero.displayName = 'Hero';
 
 export default Hero;

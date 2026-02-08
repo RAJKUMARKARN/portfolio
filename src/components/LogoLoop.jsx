@@ -1,6 +1,6 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, memo } from 'react';
 
-const LogoLoop = ({
+const LogoLoop = memo(({
   logos = [],
   speed = 100,
   direction = 'left',
@@ -13,6 +13,28 @@ const LogoLoop = ({
   ariaLabel = 'Logo carousel',
 }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const containerRef = useRef(null);
+
+  // Pause animation when not visible
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          setIsVisible(entry.isIntersecting);
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
 
   const renderLogo = (logo, index, key) => {
     const LogoContent = () => {
@@ -62,6 +84,7 @@ const LogoLoop = ({
 
   return (
     <div
+      ref={containerRef}
       style={{
         position: 'relative',
         width: '100%',
@@ -104,7 +127,8 @@ const LogoLoop = ({
           display: 'flex',
           alignItems: 'center',
           whiteSpace: 'nowrap',
-          animation: isHovered && hoverSpeed === 0 ? 'none' : `scroll-${direction} ${speed}s linear infinite`,
+          animation: !isVisible || (isHovered && hoverSpeed === 0) ? 'none' : `scroll-${direction} ${speed}s linear infinite`,
+          willChange: isVisible ? 'transform' : 'auto',
         }}
       >
         {logos.map((logo, index) => renderLogo(logo, index, `logo-1-${index}`))}
@@ -140,6 +164,8 @@ const LogoLoop = ({
       </style>
     </div>
   );
-};
+});
+
+LogoLoop.displayName = 'LogoLoop';
 
 export default LogoLoop;
