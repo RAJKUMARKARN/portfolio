@@ -1,58 +1,57 @@
 import React from 'react';
+import LogoLoop from './LogoLoop';
+import { SiReact, SiTailwindcss, SiNodedotjs, SiMongodb, SiMysql, SiJavascript, SiHtml5, SiCss3, SiBootstrap, SiExpress, SiGoogleplay, SiAppstore } from 'react-icons/si';
+import { TbBrandReactNative, TbBrandCpp } from 'react-icons/tb';
+import { FaJava } from 'react-icons/fa';
+import { DiCode } from 'react-icons/di';
+
+const techLogos = [
+  { node: <FaJava />, title: "Java", href: "https://www.java.com" },
+  { node: <TbBrandCpp />, title: "C++", href: "https://cplusplus.com" },
+  { node: <SiJavascript />, title: "JavaScript", href: "https://developer.mozilla.org/en-US/docs/Web/JavaScript" },
+  { node: <SiHtml5 />, title: "HTML", href: "https://developer.mozilla.org/en-US/docs/Web/HTML" },
+  { node: <SiCss3 />, title: "CSS", href: "https://developer.mozilla.org/en-US/docs/Web/CSS" },
+  { node: <DiCode />, title: "C", href: "https://en.wikipedia.org/wiki/C_(programming_language)" },
+  { node: <SiReact />, title: "React", href: "https://react.dev" },
+  { node: <TbBrandReactNative />, title: "React Native", href: "https://reactnative.dev" },
+  { node: <SiTailwindcss />, title: "Tailwind CSS", href: "https://tailwindcss.com" },
+  { node: <SiBootstrap />, title: "Bootstrap", href: "https://getbootstrap.com" },
+  { node: <SiNodedotjs />, title: "Node.js", href: "https://nodejs.org" },
+  { node: <SiExpress />, title: "Express.js", href: "https://expressjs.com" },
+  { node: <SiMongodb />, title: "MongoDB", href: "https://www.mongodb.com" },
+  { node: <SiMysql />, title: "MySQL", href: "https://www.mysql.com" },
+  { node: <SiGoogleplay />, title: "Google Play Store", href: "https://play.google.com/console" },
+  { node: <SiAppstore />, title: "Apple App Store", href: "https://developer.apple.com/app-store/" },
+];
 
 const Skills = () => {
   return (
     <div
-      className="bg-cover bg-center rounded-xl min-h-[700px] shadow-xl flex flex-col items-center justify-center text-center px-4 w-full"
-      style={{ backgroundImage: "url('skills-bg.png')" }}
+      className="bg-cover bg-center rounded-xl min-h-[400px] md:min-h-[400px] shadow-xl flex flex-col items-center justify-center text-center px-4 py-12 md:py-12 w-full"
+      style={{ 
+        backgroundImage: "url('skills-bg.png')",
+        backgroundSize: '100% 100%',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        marginTop: '50px'
+      }}
     >
-      <h2 className="text-white font-michroma font-bold text-lg md:text-xl lg:text-2xl">Skills</h2>
+      <h2 className="text-white font-michroma font-bold text-lg md:text-xl lg:text-2xl mb-8 md:mb-16">Skills</h2>
 
-      <div className="flex flex-wrap justify-center gap-6 mt-12 mb-24 w-full max-w-7xl px-4">
-        {/* Card Template */}
-        {[
-          {
-            title: 'Programming Skills',
-            items: ['Java', 'C++', 'JavaScript', 'HTML', 'CSS', 'C'],
-          },
-          {
-            title: 'Libraries/Frameworks',
-            items: ['React', 'Tailwind JS', 'Bootstrap', 'Node JS'],
-          },
-          {
-            title: 'Databases',
-            items: ['MongoDB', 'MySQL'],
-          },
-        ].map((section, idx) => (
-          <div
-            key={idx}
-            className="group bg-[#000000] rounded-[16px] border border-[#191919] hover:border-[#D5A9EF] p-5 w-full max-w-[300px] h-[300px] overflow-y-auto transition-all duration-300"
-          >
-            <h1 className="text-sm text-[#B2B2B2] group-hover:text-white text-center font-bold mb-4">
-              {section.title}
-            </h1>
-
-            <div className="flex flex-wrap justify-center mt-10 gap-2">
-              {section.items.map((item, i) => (
-                <div
-                  key={i}
-                  className="group relative flex items-center justify-center text-white bg-[#1E1E1E] font-bold h-[35px] rounded-[15px] px-4 transition-all duration-300 ease-in-out w-[100px] hover:w-[110px] hover:bg-[#9C28DF]"
-                >
-                  <span className="whitespace-nowrap text-[12px]">{item}</span>
-                  <span className="flex items-center ml-1 overflow-hidden transition-all duration-300 w-0 group-hover:w-6">
-                    <img
-                      src="/arrow2.png"
-                      alt=""
-                      loading="lazy"
-                      decoding="async"
-                      className="w-4 h-4 transform translate-x-2 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100"
-                    />
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
+      {/* Logo Loop Section */}
+      <div className="w-full max-w-7xl">
+        <LogoLoop
+          logos={techLogos}
+          speed={20}
+          direction="left"
+          logoHeight={60}
+          gap={80}
+          hoverSpeed={0}
+          scaleOnHover
+          fadeOut
+          fadeOutColor="#000000"
+          ariaLabel="Technology stack"
+        />
       </div>
     </div>
   );

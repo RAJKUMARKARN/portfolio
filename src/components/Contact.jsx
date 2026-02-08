@@ -3,8 +3,9 @@ import React from 'react';
 const Contact = () => {
   return (
     <div id="contact"
-      className="bg-cover bg-center rounded-xl min-h-[520px] shadow-xl flex flex-col items-center justify-center text-center w-full px-4 md:px-10
+      className="bg-cover bg-center rounded-xl min-h-[400px] md:min-h-[520px] shadow-xl flex flex-col items-center justify-center text-center w-full px-4 md:px-10 py-12 md:py-16
         bg-[url('/moon.png')] sm:bg-[url('/contact.png')]"
+      style={{ marginTop: '50px' }}
     >
       <p className="text-[18px] md:text-[20px] font-medium bg-gradient-to-r from-[#C0C0C0] to-[#5A5A5A] bg-clip-text text-transparent">
         Have an idea?

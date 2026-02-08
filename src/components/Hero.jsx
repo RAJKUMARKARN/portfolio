@@ -24,7 +24,7 @@ const Hero = () => {
   }, []);
 
   return (
-    <div className="relative min-h-[700px] sm:min-h-[750px] md:min-h-[850px] lg:min-h-[900px] w-full bg-black text-white overflow-hidden">
+    <div className="relative h-screen sm:min-h-[750px] md:min-h-[850px] lg:min-h-[900px] w-full bg-black text-white overflow-hidden" style={{ marginTop: '70px' }}>
       
       {/* SPLINE NEXT - background behind everything */}
       <div className="absolute inset-0 z-0 w-full h-full pointer-events-none">
@@ -40,7 +40,7 @@ const Hero = () => {
               showIntro ? 'opacity-100' : 'opacity-0'
             }`}
           >
-            <p className="font-michroma text-sm sm:text-base md:text-lg text-[#8A8A8A] font-semibold">
+            <p className="font-michroma text-sm sm:text-base md:text-lg text-[#8A8A8A] font-semibold text-left">
               Hello, My name is
             </p>
           </div>
@@ -60,7 +60,7 @@ const Hero = () => {
       </div>
 
       {/* "& I am a Professional" on left | SPLINE ROBOT center | Typed text on right */}
-      <div className="relative z-20 flex items-center justify-between w-full max-w-[995px] mx-auto px-6 mt-4">
+      <div className="relative z-20 flex items-center justify-between w-full max-w-[995px] mx-auto px-4 sm:px-6 mt-4">
         {/* Left - "& I am a Professional" */}
         <div
           className={`transition-opacity duration-700 ease-in ${

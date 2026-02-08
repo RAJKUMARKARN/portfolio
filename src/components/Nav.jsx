@@ -11,9 +11,9 @@ const Nav = () => {
   ];
 
   return (
-    <div className="w-full bg-black text-white">
+    <div className="w-full bg-black text-white fixed top-0 left-0 right-0 z-50">
       {/* Navbar Container */}
-      <nav className="max-w-[1280px] mx-auto px-4 py-4 flex justify-between items-center">
+      <nav className="max-w-[1280px] mx-auto px-4 py-4 flex justify-between items-center bg-black">
         {/* Logo */}
         <div className="flex items-center space-x-3">
           <img className="h-[33px] w-[33px]" src="logo.png" alt="Logo" />
@@ -24,7 +24,7 @@ const Nav = () => {
         </div>
 
         {/* Desktop Nav */}
-        <ul className="hidden lg:flex space-x-8  rounded-[25px] px-6 py-2">
+        <ul className="hidden lg:flex space-x-8 rounded-[25px] px-6 py-2">
           {navLinks.map((link, i) => (
             <li key={i}>
               <a
@@ -38,23 +38,23 @@ const Nav = () => {
         </ul>
 
         {/* Hamburger for Mobile */}
-        <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden focus:outline-none">
+        <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden focus:outline-none z-50">
           <img src="menu.png" alt="Menu" className="w-6 h-6" />
         </button>
       </nav>
 
-      {/* Mobile Dropdown */}
+      {/* Mobile Dropdown - Absolute positioned */}
       <div
-        className={`lg:hidden transition-all duration-300 ease-in-out overflow-hidden ${
-          isOpen ? 'max-h-[300px] opacity-100' : 'max-h-0 opacity-0'
+        className={`lg:hidden absolute top-full left-0 right-0 transition-all duration-300 ease-in-out ${
+          isOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
         }`}
       >
-        <ul className="flex flex-col bg-[#101010] border rounded-xl mx-4 mb-4 py-4 px-4 space-y-3">
+        <ul className="flex flex-col bg-[#101010] border border-[#2B2B2B] rounded-xl mx-4 mt-2 py-4 px-4 space-y-3 shadow-lg">
           {navLinks.map((link, i) => (
             <li key={i}>
               <a
                 href={link.href}
-                className="text-[#C6C6C6] text-[14px] font-michroma hover:text-white transition duration-300"
+                className="text-[#C6C6C6] text-[14px] font-michroma hover:text-white transition duration-300 block"
                 onClick={() => setIsOpen(false)}
               >
                 {link.label}
