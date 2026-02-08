@@ -23,31 +23,10 @@ const RippleGrid = memo(({
   const mouseInfluenceRef = useRef(0);
   const uniformsRef = useRef(null);
   const animationRef = useRef(null);
-  const [isVisible, setIsVisible] = useState(false);
   const performanceConfig = useRef(getPerformanceConfig());
 
-  // IntersectionObserver to pause when not visible
   useEffect(() => {
-    if (!containerRef.current) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          setIsVisible(entry.isIntersecting);
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    observer.observe(containerRef.current);
-
-    return () => {
-      observer.disconnect();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!containerRef.current || !isVisible) return;
+    if (!containerRef.current) return; // Remove isVisible check - always set up WebGL
 
     const hexToRgb = hex => {
       const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -238,6 +217,7 @@ void main() {
     const render = t => {
       if (!isRunning) return;
       
+      // Always render for reliability - visibility optimization removed
       uniforms.iTime.value = t * 0.001;
 
       const lerpFactor = 0.1;
@@ -279,7 +259,7 @@ void main() {
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isVisible]);
+  }, []); // Removed isVisible from deps
 
   useEffect(() => {
     if (!uniformsRef.current) return;

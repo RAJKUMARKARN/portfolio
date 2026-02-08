@@ -5,33 +5,11 @@ import { getPerformanceConfig, debounce } from '../utils/performanceUtils';
 const Lightning = memo(({ hue = 230, xOffset = 0, speed = 1, intensity = 1, size = 1 }) => {
   const canvasRef = useRef(null);
   const animationRef = useRef(null);
-  const [isVisible, setIsVisible] = useState(false);
   const performanceConfig = useRef(getPerformanceConfig());
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    // Pause animation when not visible using IntersectionObserver
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          setIsVisible(entry.isIntersecting);
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    observer.observe(canvas);
-
-    return () => {
-      observer.disconnect();
-    };
-  }, []);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas || !isVisible) return;
+    if (!canvas) return; // Remove isVisible check here - always set up WebGL
 
     const resizeCanvas = () => {
       canvas.width = canvas.clientWidth;
@@ -194,6 +172,7 @@ const Lightning = memo(({ hue = 230, xOffset = 0, speed = 1, intensity = 1, size
     const render = () => {
       if (!isRunning) return;
       
+      // Always render for reliability - visibility optimization removed
       gl.viewport(0, 0, canvas.width, canvas.height);
       gl.uniform2f(iResolutionLocation, canvas.width, canvas.height);
       const currentTime = performance.now();
@@ -204,6 +183,7 @@ const Lightning = memo(({ hue = 230, xOffset = 0, speed = 1, intensity = 1, size
       gl.uniform1f(uIntensityLocation, intensity * performanceConfig.current.lightningIntensity);
       gl.uniform1f(uSizeLocation, size);
       gl.drawArrays(gl.TRIANGLES, 0, 6);
+      
       animationRef.current = requestAnimationFrame(render);
     };
     
@@ -222,7 +202,7 @@ const Lightning = memo(({ hue = 230, xOffset = 0, speed = 1, intensity = 1, size
         loseContextExt.loseContext();
       }
     };
-  }, [hue, xOffset, speed, intensity, size, isVisible]);
+  }, [hue, xOffset, speed, intensity, size]); // Removed isVisible from deps
 
   return <canvas ref={canvasRef} className="lightning-container" />;
 });
