@@ -24,7 +24,7 @@ const Hero = () => {
   }, []);
 
   return (
-    <div className="relative h-screen sm:min-h-[750px] md:min-h-[850px] lg:min-h-[900px] w-full bg-black text-white overflow-hidden" style={{ marginTop: '70px' }}>
+    <div className="relative w-full bg-black text-white overflow-hidden h-[calc(100vh-70px)] md:h-screen">
       
       {/* SPLINE NEXT - background behind everything */}
       <div className="absolute inset-0 z-0 w-full h-full pointer-events-none">
@@ -40,7 +40,7 @@ const Hero = () => {
               showIntro ? 'opacity-100' : 'opacity-0'
             }`}
           >
-            <p className="font-michroma text-sm sm:text-base md:text-lg text-[#8A8A8A] font-semibold text-left">
+            <p className="font-michroma text-sm sm:text-base md:text-lg text-[#8A8A8A] font-semibold text-center md:text-left">
               Hello, My name is
             </p>
           </div>
@@ -51,7 +51,7 @@ const Hero = () => {
               showName ? 'opacity-100' : 'opacity-0'
             }`}
           >
-            <h1 style={{ fontFamily: "'Inter', sans-serif" }} className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-black uppercase text-white">
+            <h1 style={{ fontFamily: "'Inter', sans-serif" }} className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-black uppercase text-white text-center">
               Raj Kumar Karn
             </h1>
           </div>
@@ -60,14 +60,14 @@ const Hero = () => {
       </div>
 
       {/* "& I am a Professional" on left | SPLINE ROBOT center | Typed text on right */}
-      <div className="relative z-20 flex items-center justify-between w-full max-w-[995px] mx-auto px-4 sm:px-6 mt-4">
+      <div className="relative z-20 flex flex-col md:flex-row items-center md:justify-between w-full max-w-[995px] mx-auto px-4 sm:px-6 mt-4 gap-2 md:gap-0">
         {/* Left - "& I am a Professional" */}
         <div
           className={`transition-opacity duration-700 ease-in ${
             showRole ? 'opacity-100' : 'opacity-0'
           }`}
         >
-          <p className="font-michroma text-xs sm:text-sm md:text-base lg:text-lg font-semibold text-[#8A8A8A] text-left whitespace-nowrap">
+          <p className="font-michroma text-xs sm:text-sm md:text-base lg:text-lg font-semibold text-[#8A8A8A] text-center md:text-left whitespace-nowrap">
             & I am a Professional
           </p>
         </div>
@@ -79,7 +79,7 @@ const Hero = () => {
           }`}
         >
           <ReactTyped
-            className="block text-[7px] sm:text-xs md:text-sm lg:text-base font-extrabold text-right animated-gradient-text"
+            className="block text-xs sm:text-sm md:text-base lg:text-lg font-extrabold text-center md:text-right text-white"
             strings={["Frontend Developer", "UI/UX Developer", "Full Stack Developer", "App Developer"]}
             typeSpeed={100}
             backSpeed={30}
@@ -89,13 +89,13 @@ const Hero = () => {
       </div>
 
       {/* Contact Me Button - appears after Spline loads */}
-      <div className={`absolute bottom-[100px] left-1/2 -translate-x-1/2 z-20 flex justify-center transition-opacity duration-700 ease-in ${showButton ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+      <div className={`absolute bottom-[60px] sm:bottom-[100px] left-1/2 -translate-x-1/2 z-20 flex justify-center transition-opacity duration-700 ease-in ${showButton ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
         <a
           href="#contact"
-          className="group relative inline-flex items-center bg-[#1E1E1E] border border-[#535353] text-[#989898] font-semibold rounded-full shadow-md px-12 py-4 transition-all duration-300 ease-in-out whitespace-nowrap
+          className="group relative inline-flex items-center bg-[#1E1E1E] border border-[#535353] text-[#989898] font-semibold rounded-full shadow-md px-8 py-3 sm:px-12 sm:py-4 transition-all duration-300 ease-in-out whitespace-nowrap
             hover:bg-[#141414] hover:border-[#646cff] hover:shadow-[0_0_15px_rgba(100,108,255,0.5)] focus:bg-[#141414] focus:border-[#646cff] active:bg-[#141414] active:border-[#646cff]"
         >
-          <span className="text-lg text-[#989898] transition-all duration-300 group-hover:text-white group-focus:text-white group-active:text-white">
+          <span className="text-base sm:text-lg text-[#989898] transition-all duration-300 group-hover:text-white group-focus:text-white group-active:text-white">
             Contact Me
           </span>
           <span className="flex items-center ml-1 overflow-hidden transition-all duration-300
