@@ -24,9 +24,28 @@ const RippleGrid = memo(({
   const uniformsRef = useRef(null);
   const animationRef = useRef(null);
   const performanceConfig = useRef(getPerformanceConfig());
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    if (!containerRef.current) return; // Remove isVisible check - always set up WebGL
+    const container = containerRef.current;
+    if (!container) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(container);
+
+    return () => {
+      observer.unobserve(container);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!containerRef.current || !isVisible) return;
 
     const hexToRgb = hex => {
       const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -259,7 +278,7 @@ void main() {
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Removed isVisible from deps
+  }, [isVisible]);
 
   useEffect(() => {
     if (!uniformsRef.current) return;

@@ -1,7 +1,9 @@
 @import "tailwindcss";
 
 @theme {
-  --font-michroma: "Michroma","work Sans", sans-serif; 
+  --font-michroma: "Michroma","work Sans", sans-serif;
+  --font-bebas: "Bebas Neue", sans-serif;
+  --font-antonio: "Antonio", sans-serif;
 }
  html{
   scroll-behavior: smooth;
@@ -114,11 +116,20 @@ img {
   content-visibility: auto;
 }
 
-/* Optimize scroll performance */
+/* Optimize scroll performance: only apply to below-the-fold sections so Hero renders instantly */
 @supports (content-visibility: auto) {
-  section {
+  section:not(:first-of-type) {
     content-visibility: auto;
     contain-intrinsic-size: 0 500px;
   }
+}
+
+/* Hero Section Ambient & Interactive Polish */
+.hero-glow-cyan {
+  background: radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.12) 0%, rgba(0, 0, 0, 0) 70%);
+}
+
+.hero-glow-purple {
+  background: radial-gradient(circle at 50% 50%, rgba(156, 40, 223, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
 }
 

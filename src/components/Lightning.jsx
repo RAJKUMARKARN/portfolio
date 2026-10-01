@@ -6,33 +6,51 @@ const Lightning = memo(({ hue = 230, xOffset = 0, speed = 1, intensity = 1, size
   const canvasRef = useRef(null);
   const animationRef = useRef(null);
   const performanceConfig = useRef(getPerformanceConfig());
+  const [isVisible, setIsVisible] = useState(false);
+
+  // Use IntersectionObserver so offscreen project cards don't waste WebGL contexts
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(canvas);
+
+    return () => {
+      observer.unobserve(canvas);
+    };
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return; // Remove isVisible check here - always set up WebGL
+    if (!canvas || !isVisible) return;
 
     const resizeCanvas = () => {
       canvas.width = canvas.clientWidth;
       canvas.height = canvas.clientHeight;
     };
     resizeCanvas();
-    
-    // Debounce resize for better performance
+
     const debouncedResize = debounce(resizeCanvas, 250);
     window.addEventListener('resize', debouncedResize);
 
     const gl = canvas.getContext('webgl', {
       alpha: true,
-      antialias: false, // Disable antialiasing for better performance
-      powerPreference: 'high-performance'
+      antialias: false,
+      powerPreference: 'high-performance',
     });
-    if (!gl) {
-      console.error('WebGL not supported');
+
+    if (!gl || gl.isContextLost()) {
       return;
     }
 
-    // Adjust octave count based on device performance
-    const octaveCount = performanceConfig.current.lightningOctaves;
+    const octaveCount = performanceConfig.current.lightningOctaves || 5;
 
     const vertexShaderSource = `
       attribute vec2 aPosition;
@@ -127,7 +145,6 @@ const Lightning = memo(({ hue = 230, xOffset = 0, speed = 1, intensity = 1, size
       gl.shaderSource(shader, source);
       gl.compileShader(shader);
       if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        console.error('Shader compile error:', gl.getShaderInfoLog(shader));
         gl.deleteShader(shader);
         return null;
       }
@@ -144,7 +161,6 @@ const Lightning = memo(({ hue = 230, xOffset = 0, speed = 1, intensity = 1, size
     gl.attachShader(program, fragmentShader);
     gl.linkProgram(program);
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-      console.error('Program linking error:', gl.getProgramInfoLog(program));
       return;
     }
     gl.useProgram(program);
@@ -168,11 +184,10 @@ const Lightning = memo(({ hue = 230, xOffset = 0, speed = 1, intensity = 1, size
 
     const startTime = performance.now();
     let isRunning = true;
-    
+
     const render = () => {
       if (!isRunning) return;
-      
-      // Always render for reliability - visibility optimization removed
+
       gl.viewport(0, 0, canvas.width, canvas.height);
       gl.uniform2f(iResolutionLocation, canvas.width, canvas.height);
       const currentTime = performance.now();
@@ -183,10 +198,10 @@ const Lightning = memo(({ hue = 230, xOffset = 0, speed = 1, intensity = 1, size
       gl.uniform1f(uIntensityLocation, intensity * performanceConfig.current.lightningIntensity);
       gl.uniform1f(uSizeLocation, size);
       gl.drawArrays(gl.TRIANGLES, 0, 6);
-      
+
       animationRef.current = requestAnimationFrame(render);
     };
-    
+
     animationRef.current = requestAnimationFrame(render);
 
     return () => {
@@ -195,14 +210,13 @@ const Lightning = memo(({ hue = 230, xOffset = 0, speed = 1, intensity = 1, size
         cancelAnimationFrame(animationRef.current);
       }
       window.removeEventListener('resize', debouncedResize);
-      
-      // Clean up WebGL context
+
       const loseContextExt = gl.getExtension('WEBGL_lose_context');
       if (loseContextExt) {
         loseContextExt.loseContext();
       }
     };
-  }, [hue, xOffset, speed, intensity, size]); // Removed isVisible from deps
+  }, [isVisible, hue, xOffset, speed, intensity, size]);
 
   return <canvas ref={canvasRef} className="lightning-container" />;
 });

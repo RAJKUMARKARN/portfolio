@@ -1,127 +1,217 @@
-import React, { useState, useEffect, useRef, memo } from 'react';
+import React, { useEffect, useRef, memo } from 'react';
+import gsap from 'gsap';
+
+const WORDS = ['Design', 'Build', 'Develop', 'Deploy'];
+const FINAL_PHRASE = "Now that's what I do";
+
+const SOCIAL_LINKS = [
+  {
+    href: "https://leetcode.com/u/Rajkumarkarn/",
+    img: "leetcode.png",
+    alt: "LeetCode",
+  },
+  {
+    href: "https://www.linkedin.com/in/raj-kumar-karn-55230a186/",
+    img: "linkedin.png",
+    alt: "LinkedIn",
+  },
+  {
+    href: "https://github.com/RAJKUMARKARN",
+    img: "github.png",
+    alt: "GitHub",
+  },
+  {
+    href: "mailto:rajkumarkarn002@gmail.com",
+    img: "gmail.png",
+    alt: "Gmail",
+  },
+];
 
 const AnimatedWords = memo(() => {
-  const words = ['Design', 'Build', 'Develop', 'Deploy', "Now that's what I do"];
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isVisible, setIsVisible] = useState(true);
-  const [hasCompleted, setHasCompleted] = useState(false);
-  const [hasStarted, setHasStarted] = useState(false);
-  const [showSocials, setShowSocials] = useState(false);
   const sectionRef = useRef(null);
+  const wordsContainerRef = useRef(null);
+  const wordElsRef = useRef([]);
+  const finalPhraseRef = useRef(null);
+  const socialsRef = useRef(null);
+  const hasTriggeredRef = useRef(false);
 
-  // Detect when section comes into view
   useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    let ctx;
+
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !hasStarted && !hasCompleted) {
-          setHasStarted(true);
+        if (entry.isIntersecting && !hasTriggeredRef.current) {
+          hasTriggeredRef.current = true;
+
+          ctx = gsap.context(() => {
+            const wordEls = wordElsRef.current.filter(Boolean);
+            const finalEl = finalPhraseRef.current;
+            const socialIcons = socialsRef.current ? Array.from(socialsRef.current.children) : [];
+
+            // Initial set: hide all elements with GPU-optimized transforms
+            gsap.set([...wordEls, finalEl], {
+              opacity: 0,
+              y: 45,
+              filter: 'blur(10px)',
+              scale: 0.96,
+            });
+
+            gsap.set(socialIcons, {
+              opacity: 0,
+              y: 30,
+              scale: 0.8,
+            });
+
+            const tl = gsap.timeline();
+
+            // Word transition settings for buttery smooth motion
+            const enterDuration = 0.7;
+            const exitDuration = 0.55;
+            const holdDuration = 0.65;
+
+            // Loop through each word with seamless, overlapping cross-fade
+            wordEls.forEach((wordEl, index) => {
+              // Word Enters
+              tl.to(
+                wordEl,
+                {
+                  opacity: 1,
+                  y: 0,
+                  scale: 1,
+                  filter: 'blur(0px)',
+                  duration: enterDuration,
+                  ease: 'power3.out',
+                },
+                index === 0 ? '+=0.15' : '<0.2'
+              )
+              // Word Exits
+              .to(
+                wordEl,
+                {
+                  opacity: 0,
+                  y: -40,
+                  scale: 1.04,
+                  filter: 'blur(8px)',
+                  duration: exitDuration,
+                  ease: 'power3.in',
+                },
+                `+=${holdDuration}`
+              );
+            });
+
+            // Final phrase: "Now that's what I do" glides in gracefully
+            tl.to(
+              finalEl,
+              {
+                opacity: 1,
+                y: 0,
+                scale: 1,
+                filter: 'blur(0px)',
+                duration: 0.9,
+                ease: 'power3.out',
+              },
+              '<0.15'
+            );
+
+            // Staggered reveal for Social Media Handles with gentle spring
+            if (socialIcons.length > 0) {
+              tl.to(
+                socialIcons,
+                {
+                  opacity: 0.85,
+                  y: 0,
+                  scale: 1,
+                  duration: 0.65,
+                  stagger: 0.1,
+                  ease: 'back.out(1.6)',
+                },
+                '+=0.25'
+              );
+            }
+          }, section);
         }
       },
-      { threshold: 0.3 } // Start when 30% of section is visible
+      { threshold: 0.25 }
     );
 
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
+    observer.observe(section);
 
     return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
-      }
+      observer.disconnect();
+      if (ctx) ctx.revert();
     };
-  }, [hasStarted, hasCompleted]);
-
-  // Animation logic
-  useEffect(() => {
-    if (!hasStarted || hasCompleted || currentIndex === words.length - 1) return;
-
-    const timer = setTimeout(() => {
-      setIsVisible(false);
-      
-      setTimeout(() => {
-        const nextIndex = currentIndex + 1;
-        
-        if (nextIndex < words.length) {
-          setCurrentIndex(nextIndex);
-          setIsVisible(true);
-        }
-        
-        // If we just moved to the last word, mark as completed
-        if (nextIndex === words.length - 1) {
-          setHasCompleted(true);
-        }
-      }, 350); // Wait for fade out
-    }, 650); // Show each word for 0.65 seconds
-
-    return () => clearTimeout(timer);
-  }, [currentIndex, hasCompleted, hasStarted]);
-
-  // Show socials after animation completes
-  useEffect(() => {
-    if (hasCompleted && currentIndex === words.length - 1) {
-      const socialTimer = setTimeout(() => {
-        setShowSocials(true);
-      }, 2000); // Wait 2s after last word appears for smoother transition
-      
-      return () => clearTimeout(socialTimer);
-    }
-  }, [hasCompleted, currentIndex]);
+  }, []);
 
   return (
-    <div ref={sectionRef} className="w-full min-h-[500px] md:min-h-[700px] lg:min-h-[800px] bg-black flex flex-col items-center justify-center px-4 py-12 md:py-16 gap-8 md:gap-16" style={{ marginTop: '50px' }}>
-      <h2
-        className={`text-white font-black text-center max-w-6xl transition-all duration-[350ms] ease-in-out ${
-          isVisible ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-90 translate-y-8'
-        }`}
-        style={{ 
-          fontSize: showSocials 
-            ? 'clamp(1.5rem, 4vw, 3rem)' 
-            : currentIndex === 4 
-              ? 'clamp(2rem, 7vw, 6rem)' 
-              : 'clamp(4rem, 15vw, 12rem)',
-          lineHeight: '1.2',
-          whiteSpace: currentIndex === 4 ? 'nowrap' : 'normal',
-          transition: 'font-size 1s cubic-bezier(0.4, 0, 0.2, 1)'
-        }}
+    <div
+      ref={sectionRef}
+      className="relative w-full min-h-[500px] md:min-h-[650px] lg:min-h-[750px] bg-black flex flex-col items-center justify-center px-4 py-16 md:py-24 overflow-hidden select-none"
+    >
+      {/* Subtle ambient backdrop radial glow */}
+      <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+        <div className="w-[500px] h-[300px] sm:w-[700px] sm:h-[400px] rounded-full bg-radial from-purple-900/10 via-transparent to-transparent blur-3xl" />
+      </div>
+
+      {/* Main words display container - rock-solid height prevents layout jumps */}
+      <div
+        ref={wordsContainerRef}
+        className="relative w-full max-w-5xl h-[160px] sm:h-[200px] md:h-[240px] lg:h-[280px] flex items-center justify-center"
       >
-        {words[currentIndex]}
-      </h2>
+        {/* Dynamic cycling words: Design, Build, Develop, Deploy */}
+        {WORDS.map((word, idx) => (
+          <h2
+            key={word}
+            ref={(el) => (wordElsRef.current[idx] = el)}
+            style={{
+              fontSize: 'clamp(3.8rem, 13vw, 10.5rem)',
+              lineHeight: 1,
+            }}
+            className="absolute inset-0 flex items-center justify-center text-center font-black tracking-tight uppercase text-transparent bg-clip-text bg-gradient-to-b from-white via-neutral-100 to-neutral-400 drop-shadow-[0_10px_40px_rgba(255,255,255,0.18)] will-change-transform"
+          >
+            {word}
+          </h2>
+        ))}
+
+        {/* Final phrase: "Now that's what I do" */}
+        <h2
+          ref={finalPhraseRef}
+          style={{
+            fontSize: 'clamp(2.2rem, 6.5vw, 5rem)',
+            lineHeight: 1.15,
+          }}
+          className="absolute inset-0 flex items-center justify-center text-center font-bold tracking-tight text-white drop-shadow-[0_8px_35px_rgba(255,255,255,0.22)] whitespace-nowrap will-change-transform"
+        >
+          {FINAL_PHRASE}
+        </h2>
+      </div>
 
       {/* Social Media Handles */}
-      {showSocials && (
-        <div className={`flex gap-8 items-center justify-center transition-all duration-1000 ease-out ${
-          showSocials ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-        }`}>
-          <a href="https://leetcode.com/u/Rajkumarkarn/" target="_blank" rel="noopener noreferrer">
+      <div
+        ref={socialsRef}
+        className="relative z-10 flex gap-6 sm:gap-8 md:gap-10 items-center justify-center mt-6 sm:mt-8 md:mt-10"
+      >
+        {SOCIAL_LINKS.map((item) => (
+          <a
+            key={item.alt}
+            href={item.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group relative p-2 rounded-2xl transition-all duration-300 hover:scale-115 active:scale-95"
+          >
+            <div className="absolute inset-0 rounded-2xl bg-white/0 group-hover:bg-white/10 transition-colors duration-300 blur-sm -z-10" />
             <img
-              src="leetcode.png"
-              alt="LeetCode"
-              className="h-14 w-14 md:h-16 md:w-16 lg:h-20 lg:w-20 opacity-70 hover:opacity-100 transition"
+              src={item.img}
+              alt={item.alt}
+              width="64"
+              height="64"
+              className="h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 lg:h-18 lg:w-18 opacity-75 group-hover:opacity-100 transition-opacity duration-300 drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
             />
           </a>
-          <a href="https://www.linkedin.com/in/raj-kumar-karn-55230a186/" target="_blank" rel="noopener noreferrer">
-            <img
-              src="linkedin.png"
-              alt="LinkedIn"
-              className="h-14 w-14 md:h-16 md:w-16 lg:h-20 lg:w-20 opacity-70 hover:opacity-100 transition"
-            />
-          </a>
-          <a href="https://github.com/RAJKUMARKARN" target="_blank" rel="noopener noreferrer">
-            <img
-              src="github.png"
-              alt="GitHub"
-              className="h-14 w-14 md:h-16 md:w-16 lg:h-20 lg:w-20 opacity-70 hover:opacity-100 transition"
-            />
-          </a>
-          <a href="mailto:rajkumarkarn002@gmail.com">
-            <img
-              src="gmail.png"
-              alt="Gmail"
-              className="h-14 w-14 md:h-16 md:w-16 lg:h-20 lg:w-20 opacity-70 hover:opacity-100 transition"
-            />
-          </a>
-        </div>
-      )}
+        ))}
+      </div>
     </div>
   );
 });
