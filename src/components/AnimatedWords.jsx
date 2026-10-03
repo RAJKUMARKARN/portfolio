@@ -1,5 +1,8 @@
 import React, { useEffect, useRef, memo } from 'react';
 import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const WORDS = ['Design', 'Build', 'Develop', 'Deploy'];
 const FINAL_PHRASE = "Now that's what I do";
@@ -33,129 +36,150 @@ const AnimatedWords = memo(() => {
   const wordElsRef = useRef([]);
   const finalPhraseRef = useRef(null);
   const socialsRef = useRef(null);
-  const hasTriggeredRef = useRef(false);
 
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
 
-    let ctx;
+    const ctx = gsap.context(() => {
+      const wordEls = wordElsRef.current.filter(Boolean);
+      const finalEl = finalPhraseRef.current;
+      const socialIcons = socialsRef.current ? Array.from(socialsRef.current.children) : [];
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !hasTriggeredRef.current) {
-          hasTriggeredRef.current = true;
+      // Initial state: first word is visible, others are pre-positioned below
+      gsap.set(wordEls[0], {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        filter: 'blur(0px)',
+      });
 
-          ctx = gsap.context(() => {
-            const wordEls = wordElsRef.current.filter(Boolean);
-            const finalEl = finalPhraseRef.current;
-            const socialIcons = socialsRef.current ? Array.from(socialsRef.current.children) : [];
+      gsap.set([...wordEls.slice(1), finalEl], {
+        opacity: 0,
+        y: 50,
+        scale: 0.94,
+        filter: 'blur(10px)',
+      });
 
-            // Initial set: hide all elements with GPU-optimized transforms
-            gsap.set([...wordEls, finalEl], {
-              opacity: 0,
-              y: 45,
-              filter: 'blur(10px)',
-              scale: 0.96,
-            });
+      gsap.set(socialIcons, {
+        opacity: 0,
+        y: 30,
+        scale: 0.8,
+      });
 
-            gsap.set(socialIcons, {
-              opacity: 0,
-              y: 30,
-              scale: 0.8,
-            });
+      // Scroll-driven pinned timeline
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: section,
+          start: 'top top',
+          end: '+=1000',
+          pin: true,
+          pinSpacing: true,
+          scrub: 0.5,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+        },
+      });
 
-            const tl = gsap.timeline();
+      // Step smoothly through each word as the user scrolls
+      wordEls.forEach((wordEl, index) => {
+        // Hold current word for scroll progress
+        tl.to({}, { duration: 0.4 });
 
-            // Word transition settings for buttery smooth motion
-            const enterDuration = 0.7;
-            const exitDuration = 0.55;
-            const holdDuration = 0.65;
+        if (index < wordEls.length - 1) {
+          const nextWord = wordEls[index + 1];
 
-            // Loop through each word with seamless, overlapping cross-fade
-            wordEls.forEach((wordEl, index) => {
-              // Word Enters
-              tl.to(
-                wordEl,
-                {
-                  opacity: 1,
-                  y: 0,
-                  scale: 1,
-                  filter: 'blur(0px)',
-                  duration: enterDuration,
-                  ease: 'power3.out',
-                },
-                index === 0 ? '+=0.15' : '<0.2'
-              )
-              // Word Exits
-              .to(
-                wordEl,
-                {
-                  opacity: 0,
-                  y: -40,
-                  scale: 1.04,
-                  filter: 'blur(8px)',
-                  duration: exitDuration,
-                  ease: 'power3.in',
-                },
-                `+=${holdDuration}`
-              );
-            });
+          // Outgoing word floats up with blur
+          tl.to(wordEl, {
+            opacity: 0,
+            y: -40,
+            scale: 1.04,
+            filter: 'blur(8px)',
+            duration: 0.6,
+            ease: 'power2.inOut',
+          });
 
-            // Final phrase: "Now that's what I do" glides in gracefully
-            tl.to(
-              finalEl,
-              {
-                opacity: 1,
-                y: 0,
-                scale: 1,
-                filter: 'blur(0px)',
-                duration: 0.9,
-                ease: 'power3.out',
-              },
-              '<0.15'
-            );
+          // Incoming word glides in from below
+          tl.to(
+            nextWord,
+            {
+              opacity: 1,
+              y: 0,
+              scale: 1,
+              filter: 'blur(0px)',
+              duration: 0.6,
+              ease: 'power2.inOut',
+            },
+            '<'
+          );
+        } else {
+          // Last word ('Deploy') floats out as final phrase enters
+          tl.to(wordEl, {
+            opacity: 0,
+            y: -40,
+            scale: 1.04,
+            filter: 'blur(8px)',
+            duration: 0.6,
+            ease: 'power2.inOut',
+          });
 
-            // Staggered reveal for Social Media Handles with gentle spring
-            if (socialIcons.length > 0) {
-              tl.to(
-                socialIcons,
-                {
-                  opacity: 0.85,
-                  y: 0,
-                  scale: 1,
-                  duration: 0.65,
-                  stagger: 0.1,
-                  ease: 'back.out(1.6)',
-                },
-                '+=0.25'
-              );
-            }
-          }, section);
+          tl.to(
+            finalEl,
+            {
+              opacity: 1,
+              y: 0,
+              scale: 1,
+              filter: 'blur(0px)',
+              duration: 0.7,
+              ease: 'power2.inOut',
+            },
+            '<'
+          );
         }
-      },
-      { threshold: 0.25 }
-    );
+      });
 
-    observer.observe(section);
+      // Stagger reveal of social media links
+      if (socialIcons.length > 0) {
+        tl.to(
+          socialIcons,
+          {
+            opacity: 0.85,
+            y: 0,
+            scale: 1,
+            stagger: 0.1,
+            duration: 0.5,
+            ease: 'power2.out',
+          },
+          '-=0.15'
+        );
+      }
+
+      // Minimal exit buffer before seamless unpin into next section
+      tl.to({}, { duration: 0.2 });
+    }, section);
+
+    // Refresh ScrollTrigger once below-the-fold elements settle
+    const refreshTimer = setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 400);
 
     return () => {
-      observer.disconnect();
-      if (ctx) ctx.revert();
+      clearTimeout(refreshTimer);
+      ctx.revert();
     };
   }, []);
 
   return (
     <div
       ref={sectionRef}
-      className="relative w-full min-h-[500px] md:min-h-[650px] lg:min-h-[750px] bg-black flex flex-col items-center justify-center px-4 py-16 md:py-24 overflow-hidden select-none"
+      className="relative w-full h-screen bg-black flex flex-col items-center justify-center px-4 overflow-hidden select-none"
     >
       {/* Subtle ambient backdrop radial glow */}
       <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
         <div className="w-[500px] h-[300px] sm:w-[700px] sm:h-[400px] rounded-full bg-radial from-purple-900/10 via-transparent to-transparent blur-3xl" />
       </div>
 
-      {/* Main words display container - rock-solid height prevents layout jumps */}
+      {/* Main words display container - stable height prevents layout jumps */}
       <div
         ref={wordsContainerRef}
         className="relative w-full max-w-5xl h-[160px] sm:h-[200px] md:h-[240px] lg:h-[280px] flex items-center justify-center"
@@ -191,7 +215,7 @@ const AnimatedWords = memo(() => {
       {/* Social Media Handles */}
       <div
         ref={socialsRef}
-        className="relative z-10 flex gap-6 sm:gap-8 md:gap-10 items-center justify-center mt-6 sm:mt-8 md:mt-10"
+        className="relative z-10 flex gap-6 sm:gap-8 md:gap-10 items-center justify-center mt-6 sm:mt-8 md:mt-10 pointer-events-auto"
       >
         {SOCIAL_LINKS.map((item) => (
           <a
@@ -199,7 +223,7 @@ const AnimatedWords = memo(() => {
             href={item.href}
             target="_blank"
             rel="noopener noreferrer"
-            className="group relative p-2 rounded-2xl transition-all duration-300 hover:scale-115 active:scale-95"
+            className="group relative p-2 rounded-2xl transition-all duration-300 hover:scale-115 active:scale-95 pointer-events-auto"
           >
             <div className="absolute inset-0 rounded-2xl bg-white/0 group-hover:bg-white/10 transition-colors duration-300 blur-sm -z-10" />
             <img

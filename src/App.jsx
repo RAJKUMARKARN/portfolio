@@ -20,7 +20,7 @@ const SectionFallback = () => (
 
 function App() {
   return (
-    <div className="bg-black overflow-x-hidden w-full">
+    <div className="bg-black overflow-x-clip w-full min-h-screen">
       {/* Navigation - always loaded immediately */}
       <Nav />
 

@@ -5,9 +5,7 @@
   --font-bebas: "Bebas Neue", sans-serif;
   --font-antonio: "Antonio", sans-serif;
 }
- html{
-  scroll-behavior: smooth;
- }
+
 
  /* flip.css */
 .flip-card {
@@ -85,9 +83,9 @@ html, body {
   background-color: #000;
   margin: 0;
   padding: 0;
-  height: 100%;
+  min-height: 100%;
   width: 100%;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 * {
@@ -114,14 +112,6 @@ html, body {
 /* Optimize image rendering */
 img {
   content-visibility: auto;
-}
-
-/* Optimize scroll performance: only apply to below-the-fold sections so Hero renders instantly */
-@supports (content-visibility: auto) {
-  section:not(:first-of-type) {
-    content-visibility: auto;
-    contain-intrinsic-size: 0 500px;
-  }
 }
 
 /* Hero Section Ambient & Interactive Polish */
